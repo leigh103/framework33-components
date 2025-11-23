@@ -1,0 +1,12 @@
+<%- layout('layouts/public/page.ejs') %>
+    
+    <section class="contain blog article">
+        <div class="py-4">
+            <h1><%- name %></h1>
+        </div>
+        <div class="py-1">
+            <div class="text-small"><%- view.parseDate(_created, 'Do MMMM') %></div>
+            <a href="/blog">View all</a>
+        </div>
+        <div><%- content %></div>
+    </section>

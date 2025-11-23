@@ -1,0 +1,15 @@
+{
+    "enabled":false,
+    "weight":0,
+    "menus":[
+        {
+            "active": true,
+            "authenticated": true,
+            "location": "dashboard",
+            "name": "Blog",
+            "slug": "blog_posts/all",
+            "icon":"edit",
+            "weight": 1
+        }
+    ]
+}

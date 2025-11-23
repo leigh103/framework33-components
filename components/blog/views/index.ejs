@@ -1,0 +1,77 @@
+<%- layout('layouts/public/page.ejs') %>
+    
+    <section class="contain blog articles">
+        <div class="py-2">
+            <h1>Blogs</h1>
+        </div>
+        
+        <div>
+
+            <% articles.forEach((article, i)=>{ %>
+                <div class="mb-2 flex">
+                    <div class="flex-none"><img src="<%= article.image?.small %>"></div>
+                    <div class="flex-1">
+                        <a href="/blog/<%- article.slug %>" class="block mb-1"><h3><%- article.name %></h3></a>
+                        <p class="mb-1"><%= article.seo_description %></p>
+                    </div>
+                    
+                </div>
+
+            <% }) %>
+
+            
+
+
+    <div class="pagination">
+
+        <% 
+            var total_page_links = Math.ceil((count / 20)),
+                show_links = 3,
+                start = 1
+
+            if (total_page_links > show_links){
+                page_links = page+Math.ceil(show_links/2)
+                start = page-+Math.floor(show_links/2)
+
+                if (start < 1){
+                    start = 1
+                    page_links = show_links+1
+                }
+
+                if (page_links > total_page_links){
+                    page_links = total_page_links
+                    start = total_page_links-show_links
+                }
+
+            } else {
+                page_links = total_page_links
+            }
+        %>
+
+
+        <div class="links">
+
+            <% if (page_links > 1){ %>
+
+                <% if (start > 1){ %>
+                    <a class="link" href="?page=1"><i class="bx bx-chevrons-left"></i></a>        
+                <% } %>
+                <% for (var i=start;i<=page_links;i++){ %>
+
+                    <a class="link" href="?page=<%- i %>" app-class="{'selected':window.query._page == '<%- i %>'}"><%- i %></a>        
+                
+                <% } %>
+
+                <% if (i < total_page_links){ %>
+                    <a class="link" href="?page=<%- total_page_links %>"><i class="bx bx-chevrons-right"></i></a>        
+                <% } %>
+
+            <% } %>
+
+        </div>
+
+    </div>
+    
+
+        </div>
+    </section>
