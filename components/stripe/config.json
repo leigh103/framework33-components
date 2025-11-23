@@ -1,0 +1,6 @@
+{
+    "enabled": true,
+    "weight": 0,
+    "description": "Stripe payment gateway integration",
+    "version": "1.0.0"
+}

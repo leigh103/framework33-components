@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Payment</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .payment-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #card-element {
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            margin: 15px 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+        .success {
+            color: #27ae60;
+            margin-top: 10px;
+        }
+        .loading {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-form">
+        <h1>Complete Payment</h1>
+        
+        <div class="form-group">
+            <strong>Amount:</strong> £<%= (amount / 100).toFixed(2) %><br>
+            <strong>Currency:</strong> <%= currency.toUpperCase() %><br>
+            <strong>Description:</strong> <%= description %>
+        </div>
+
+        <form id="payment-form">
+            <div class="form-group">
+                <label for="card-element">Card Details</label>
+                <div id="card-element">
+                    <!-- Stripe Elements will create form elements here -->
+                </div>
+                <div id="card-errors" class="error" role="alert"></div>
+            </div>
+
+            <button id="submit-button" type="submit">
+                <span id="button-text">Pay £<%= (amount / 100).toFixed(2) %></span>
+                <span id="spinner" class="loading">Processing...</span>
+            </button>
+        </form>
+
+        <div id="payment-result" class="result"></div>
+    </div>
+
+    <script>
+        // Initialize Stripe
+        const stripe = Stripe('<%= publishable_key %>');
+        const elements = stripe.elements();
+
+        // Create card element
+        const cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#424770',
+                    '::placeholder': {
+                        color: '#aab7c4',
+                    },
+                },
+            },
+        });
+
+        cardElement.mount('#card-element');
+
+        // Handle real-time validation errors from the card Element
+        cardElement.on('change', ({error}) => {
+            const displayError = document.getElementById('card-errors');
+            if (error) {
+                displayError.textContent = error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        // Handle form submission
+        const form = document.getElementById('payment-form');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const spinner = document.getElementById('spinner');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            // Disable the submit button and show loading
+            submitButton.disabled = true;
+            buttonText.style.display = 'none';
+            spinner.style.display = 'inline';
+
+            try {
+                // Create payment intent on server
+                const response = await fetch('/checkout/stripe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: <%= amount %>,
+                        currency: '<%= currency %>',
+                        reference: '<%= description %>'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Failed to create payment intent');
+                }
+
+                // Confirm payment with Stripe
+                const {error, paymentIntent} = await stripe.confirmCardPayment(
+                    data.client_secret,
+                    {
+                        payment_method: {
+                            card: cardElement,
+                        }
+                    }
+                );
+
+                if (error) {
+                    // Payment failed
+                    showError(error.message);
+                } else if (paymentIntent.status === 'succeeded') {
+                    // Payment succeeded
+                    showSuccess('Payment successful! Transaction ID: ' + paymentIntent.id);
+                } else {
+                    // Payment requires additional action
+                    showError('Payment requires additional verification');
+                }
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                // Re-enable the submit button
+                submitButton.disabled = false;
+                buttonText.style.display = 'inline';
+                spinner.style.display = 'none';
+            }
+        });
+
+        function showError(message) {
+            const resultDiv = document.getElementById('payment-result');
+            resultDiv.innerHTML = '<div class="error">' + message + '</div>';
+        }
+
+        function showSuccess(message) {
+            const resultDiv = document.getElementById('payment-result');
+            resultDiv.innerHTML = '<div class="success">' + message + '</div>';
+            
+            // Hide the form after successful payment
+            form.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
