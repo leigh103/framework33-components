@@ -13,6 +13,13 @@
       "description": "Lessons component",
       "version": "2.1.0",
       "category": "content"
+    },
+    {
+      "name": "invoices",
+      "path": "components/invoices",
+      "description": "invoices component",
+      "version": "2.1.0",
+      "category": "content"
     }
   ]
 }
