@@ -1,21 +1,21 @@
 {
   "components": [
     {
-      "name": "blog",
+      "name": "Blog",
       "path": "components/blog",
       "description": "Full blog system",
       "version": "1.0.0",
       "category": "content"
     },
     {
-      "name": "lessons",
+      "name": "Lessons",
       "path": "components/lessons",
       "description": "Lessons component",
       "version": "2.1.0",
       "category": "content"
     },
     {
-      "name": "invoices",
+      "name": "Invoices",
       "path": "components/invoices",
       "description": "invoices component",
       "version": "2.1.0",
