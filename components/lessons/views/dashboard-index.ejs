@@ -1,0 +1,101 @@
+<% layout('/layouts/dashboard/dashboard.ejs') -%>
+<div class="panel page grid">
+
+    <div class="actions">
+        <div class="details">
+            <h2>lesson-component</h2>
+        </div>
+        <div class="buttons">
+           <button class="btn bg-primary-light" app-click="openModal('context')"><i class='bx bx-dots-vertical'></i></button>
+        </div>
+    </div>
+    
+    <% if (typeof widgets == 'object' && Array.isArray(widgets.components) && widgets.components.length > 0){ %>
+        
+    <% } else { 
+
+        var widgets = {
+            
+            components: [
+                {
+                    type: 'link',
+                    name:'Calendar', 
+                    namespace: 'lesson-component', 
+                    parameters:[
+                        {attribute:'description', value:'View the lesson calendar'},
+                        {attribute:'link_text', value:'Calendar'},
+                        {attribute:'url', value:'lessons/calendar'}
+                    ]
+                },
+                {
+                    type: 'link',
+                    name:'Lessons', 
+                    namespace: 'lesson-component', 
+                    parameters:[
+                        {attribute:'description', value:'View a list of lessons'},
+                        {attribute:'link_text', value:'Lessons'},
+                        {attribute:'url', value:'lessons/all'}
+                    ]
+                },
+                {
+                    type: 'link',
+                    name:'Staff', 
+                    namespace: 'lesson-component', 
+                    parameters:[
+                        {attribute:'description', value:'View the lesson staff'},
+                        {attribute:'link_text', value:'Staff'},
+                        {attribute:'url', value:'lesson_staff/all'}
+                    ]
+                },
+                {
+                    type: 'link',
+                    name:'Members', 
+                    namespace: 'lesson-component', 
+                    parameters:[
+                        {attribute:'description', value:'View parents and students'},
+                        {attribute:'link_text', value:'View'},
+                        {attribute:'url', value:'lesson-users/all'}
+                    ]
+                }
+              
+            ]
+            
+        }
+
+        
+    } %>
+
+    <div class="widgets mb-2" app-class="{'editing':view.edit_widgets}" app-sortable="handle: '.handle'">
+
+        <% widgets.components.forEach((widget)=>{ %>
+
+            <widget-<%- widget.type %> <%- getParameters(widget.parameters) %> <% if (widget._key){ %>data-key="<%- widget._key %>"<% } %> data-name="<%- widget.name %>" <% if (widget.width){ %>data-width="<%- widget.width %>"<% } %> <% if (widget.height){ %>data-height="<%- widget.height %>"<% } %>>
+
+            </widget-<%- widget.type %>>
+
+        <% }) %>
+
+        
+
+    </div>
+
+
+<% 
+
+    function getParameters(parameters){
+
+        let str = ''
+
+        if (!parameters){
+            return str
+        }
+
+        parameters.forEach((param)=>{
+            str += 'data-'+param.attribute+'="'+param.value+'" '
+        })
+        return str
+    }
+
+%>
+
+</div>
