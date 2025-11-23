@@ -11,21 +11,21 @@
       "name": "Lessons",
       "path": "components/lessons",
       "description": "Lessons component",
-      "version": "2.1.0",
+      "version": "1.0.0",
       "category": "content"
     },
     {
       "name": "Invoices",
       "path": "components/invoices",
       "description": "invoices component",
-      "version": "2.1.0",
+      "version": "1.0.0",
       "category": "billing"
     },
     {
       "name": "Stripe",
       "path": "components/stripe",
       "description": "Enable Stripe payments",
-      "version": "2.1.0",
+      "version": "1.0.0",
       "category": "billing"
     }
   ]
