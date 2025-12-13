@@ -19,11 +19,6 @@ class BlogPosts extends Models {
             {name: 'published', tab:'sidebar', label:'Publish On', input_type:'datetime', type: 'date'}
         ]
 
-        this.routes = {
-            administrators: Settings.permissions.groups.administrators,
-            all: { get: ['find', 'public'] }
-        }
-
     }
 
     async preSave(){
@@ -33,6 +28,17 @@ class BlogPosts extends Models {
         }
 
         return this
+
+    }
+
+    async recent(data, req){
+
+        let now = moment().tz('Europe/London').toISOString(),
+            limit = req.query.limit || 3
+
+        let articles = await DB.read(this.settings.collection).where(['published < '+now]).limit(limit).sort('_created','DESC').get()
+
+        return articles
 
     }
 
