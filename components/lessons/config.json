@@ -1,19 +1,19 @@
 {
-    "enabled":true,
-    "weight":0,
-    "menus":[
+    "enabled": true,
+    "weight": 0,
+    "menus": [
         {
             "active": true,
             "authenticated": true,
             "location": "dashboard",
             "name": "Lessons",
-            "slug":"lesson-component",
-            "icon":"calendar",
+            "slug": "lesson-component",
+            "icon": "calendar",
             "weight": 1
         }
     ],
     "labels": {
-        "LessonUsers":"Parents and Students"
-    }
-
+        "LessonUsers": "Parents and Students"
+    },
+    "version": "1.0.1"
 }

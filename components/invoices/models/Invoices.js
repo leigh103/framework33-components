@@ -174,8 +174,8 @@ class Invoices extends Models {
         }
 
         this.actions = [
-            { bind: 'Send Invoice', click: 'sendInvoice', hide: 'record._sent' },
-            { bind: 'Send Reminder', click: 'sendReminder', show: 'record._sent' }
+            { bind: 'Send Invoice', click: 'sendInvoice', hide: 'record._sent', icon:'send' },
+            { bind: 'Send Reminder', click: 'sendReminder', show: 'record._sent',icon:'send'  }
         ]
 
     }

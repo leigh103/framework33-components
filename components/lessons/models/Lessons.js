@@ -13,7 +13,8 @@ class Lessons extends CalendarItems {
             show_fields:['name', 'staff','start_date','start_time','end_time','duration','start_dates','end_dates'],
             sort: {field: 'start_date',dir: 'ASC'},
             search_fields:['start_date','name'],
-            no_joins: true
+            no_joins: true,
+            providers:'lesson_staff'
         }
 
         this.recurrence_intervals = [
@@ -41,9 +42,9 @@ class Lessons extends CalendarItems {
 
         this.fields.push(
 
-            {name:'staff',tab:'staff', input_type:'object_array', type:'object_array', subitems:[
-                {name:'_id',label:'Staff Member', input_type:'parent', collection:'lesson_staff', type:'string',value_field: '_id'},
-                {name:'name', input_type:'text', table_link:true}
+            {name:'providers', tab:'staff', input_type:'object_array', type:'object_array', subitems:[
+                {name:'_id',label:'Staff Member', input_type:'parent', collection:'lesson_staff', type:'string',value_field: '_id'}
+             //   {name:'name', input_type:'text', table_link:true}
             ]},
             {name:'students',tab:'students', input_type:'object_array', subitems:[
                 {name:'name', input_type:'text', table_link:true},
