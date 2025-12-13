@@ -1,16 +1,18 @@
 {
     "enabled":true,
     "weight":0,
-    "menus":[
-        {
-            "active": true,
-            "authenticated": true,
-            "location": "dashboard",
-            "name": "Billing",
-            "slug": "invoices",
-            "icon":"credit-card-alt",
-            "weight": 1
-        }
-    ]
+    "registrations": {
+        "menus":[
+            {
+                "active": true,
+                "authenticated": true,
+                "location": "dashboard",
+                "name": "Billing",
+                "slug": "invoices",
+                "icon":"credit-card-alt",
+                "weight": 1
+            }
+        ]
+    }
 
 }
