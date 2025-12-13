@@ -1,5 +1,5 @@
 {
-  "_id": "recent-blog-posts",
+  "_id": "Blog-recent-posts",
   "fields": [
     
   ],
@@ -10,7 +10,7 @@
     "show_excerpt": true,
     "excerpt_length": 150
   },
-  "template": "recent-blog-posts.ejs",
+  "template": "Blog-recent-posts.ejs",
   "styling_options": [
     "text_color",
     "text_alignment",
