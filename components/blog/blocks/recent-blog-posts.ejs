@@ -1,0 +1,85 @@
+<%
+    // Ensure option_values is defined with defaults
+    if (typeof option_values === 'undefined') {
+        option_values = { max_columns: 3 };
+    }
+    
+    // Function to truncate text for excerpts
+    function truncateText(text, length) {
+        if (!text) return '';
+        const stripped = text.replace(/<[^>]*>/g, ''); // Remove HTML tags
+        return stripped.length > length ? stripped.substring(0, length) + '...' : stripped;
+    }
+    
+    // Function to format date
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    }
+%>
+
+<section class="block-text columns <% if (typeof style.block_classes == 'string') { %><%- style.block_classes %><% }%>" style="<%- view.parseStyle(style,'no-bg-image') %>">
+    <div class="contain">
+        <% if (title || subtitle) { %>
+            <div class="section-header mb-2">
+                <% if (title) { %>
+                    <h2 class="section-title" data-ref="title"><%= title %></h2>
+                <% } %>
+                <% if (subtitle) { %>
+                    <p class="section-subtitle" data-ref="subtitle"><%= subtitle %></p>
+                <% } %>
+            </div>
+        <% } %>
+        
+        <div class="columns-wrapper columns-<%= option_values.max_columns %>" data-max-columns="<%= option_values.max_columns || 3 %>">
+            <% if (typeof blog_posts !== 'undefined' && blog_posts && blog_posts.length > 0) { %>
+                <% blog_posts.forEach(function(post, index) { %>
+                    <div class="text-column blog-post-card" style="<% if (style.columns && style.columns.background && style.columns.background.color) { %>background-color: <%= style.columns.background.color %>;<% } %>">
+                        <div class="image-field">
+                            <% if (post.image && post.image.medium) { %>
+                                <a href="/blog/<%= post.slug %>">
+                                    <img src="<%= post.image.medium %>" alt="<%= post.name %>" loading="lazy">
+                                </a>
+                            <% } else { %>
+                                <div class="image-placeholder">
+                                    <span>📝</span>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="blog-post-content">
+                            
+                            <h3 class="post-title">
+                                <a href="/blog/<%= post.slug %>"><%= post.name %></a>
+                            </h3>
+                            
+                            <% if (show_excerpt && post.seo_description) { %>
+                                <div class="post-excerpt">
+                                    <%= truncateText(post.seo_description, excerpt_length || 150) %>
+                                </div>
+                            <% } else if (show_excerpt && post.content) { %>
+                                <div class="post-excerpt">
+                                    <%= truncateText(post.content, excerpt_length || 150) %>
+                                </div>
+                            <% } %>
+                            
+                            <div class="read-more">
+                                <a href="/blog/<%= post.slug %>" class="read-more-link">Read More →</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="no-posts-message">
+                    <p>No blog posts available at the moment.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+

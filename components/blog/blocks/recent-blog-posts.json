@@ -1,0 +1,42 @@
+{
+  "_id": "recent-blog-posts",
+  "fields": [
+    
+  ],
+  "defaults": {
+    "title": "Recent Blog Posts",
+    "subtitle": "Stay updated with our latest articles",
+    "posts_count": 6,
+    "show_excerpt": true,
+    "excerpt_length": 150
+  },
+  "template": "recent-blog-posts.ejs",
+  "styling_options": [
+    "text_color",
+    "text_alignment",
+    "column_background_color", 
+    "background_image",
+    "background_color",
+    "background_opacity"
+  ],
+  "options": [
+    {
+      "name": "max_columns",
+      "type": "number",
+      "label": "Maximum Columns",
+      "min": 1,
+      "max": 6,
+      "default": 3
+    },
+    {
+      "name": "posts_count",
+      "input_type": "number",
+      "type": "number",
+      "required": true,
+      "label": "Number of Posts",
+      "min": 1,
+      "max": 12,
+      "default": 6
+    }
+  ]
+}

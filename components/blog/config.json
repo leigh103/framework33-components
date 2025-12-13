@@ -1,15 +1,24 @@
 {
     "enabled":true,
     "weight":0,
-    "menus":[
-        {
-            "active": true,
-            "authenticated": true,
-            "location": "dashboard",
-            "name": "Blog",
-            "slug": "blog_posts/all",
-            "icon":"edit",
-            "weight": 1
-        }
-    ]
+    "registrations": {
+        "menus":[
+            {
+                "active": true,
+                "authenticated": true,
+                "location": "dashboard",
+                "name": "Blog",
+                "slug": "blog_posts/all",
+                "icon":"edit",
+                "weight": 1
+            }
+        ],
+        "blocks": [
+            {
+                "name": "recent-posts",
+                "template": "blocks/recent-posts.ejs",
+                "config": "blocks/recent-posts.json"
+            }
+        ]
+    }
 }
