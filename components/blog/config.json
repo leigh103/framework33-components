@@ -16,8 +16,8 @@
         "blocks": [
             {
                 "name": "recent-posts",
-                "template": "blocks/recent-blog-posts.ejs",
-                "config": "blocks/recent-blog-posts.json"
+                "template": "blocks/recent-posts.ejs",
+                "config": "blocks/recent-posts.json"
             }
         ]
     }
