@@ -1,0 +1,20 @@
+{
+    "enabled": true,
+    "weight": 0,
+    "registrations": {
+        "menus": [
+            {
+                "active": true,
+                "authenticated": true,
+                "location": "dashboard",
+                "name": "Social",
+                "slug": "social_users/all",
+                "icon": "group",
+                "weight": 1
+            }
+        ],
+        "blocks": [],
+        "eventListeners":[]
+    },
+    "version": "1.0.0"
+}

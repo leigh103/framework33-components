@@ -1,0 +1,163 @@
+<%- header %>
+
+<body>
+
+    <section class="page pb-3">
+        <div class="contain">
+            <h1>Account</h1>
+
+        <% if (typeof fields == 'object') { %>
+                <div class="tabs">
+                    <!-- <a app-click="goBack()"><span class="icon arrowleft white"></span></a> -->
+                        <% for (var tab in fields){ %>
+                            <% if (tab != 'sidebar') { %>
+                            <a app-click="openTab('<%- tab %>')" app-class="{'active':view.edit_tab == '<%- tab %>'}" class="capitalise"><%- view.parseName(tab) %></a>
+                            <% } %>    
+                        <% } %>
+                    <a href="/messages" class="capitalise">Messages</a>
+                </div>
+
+        <% } %>
+
+        <% if (typeof fields == 'undefined') { %>
+
+            <% columns.forEach((item)=>{ %>
+                <input type="text" app-model="record.<%- item %>">
+            <% }) %>
+        
+        <% } else if (typeof fields == 'object') { %>
+        
+            <% for (var tab in fields){ %>
+        
+                <% if (Array.isArray(fields[tab]) && fields[tab].length > 0 && tab != 'sidebar') { %>
+        
+                    <div app-show="view.edit_tab == '<%- tab %>'" class="fields tab-<%- view.parseSnake(tab) %>">
+        
+                        <% fields[tab].forEach((item,i) => { %>
+        
+                            <%- include(view.basedir+'/themes/default/views/fields/include_fields.ejs', {item:item}) %>
+        
+                        <% }) %>
+        
+                    </div>
+        
+                <% } %>
+        
+            <% } %>
+        
+        <% } %>
+
+        <button class="btn bg-primary" app-click="saveRecord()">Save</button>
+        </div>
+
+
+    </section>
+
+    <%- footer %>
+
+    <script>
+
+        extend.account = function(){
+
+            scope.record = <%- JSON.stringify(record) %>
+            scope.view.edit_tab = 'details'
+
+            methods.openTab = function (tab) {
+
+                scope.view.edit_tab = tab
+
+            }
+
+            methods.saveRecord = function(){
+
+                http.post('/api/' + scope.record._id, scope.record).then((data) => {
+                    console.log(data)
+                    methods.notify()
+                }).catch((e)=>{
+                    console.log(e)
+                    methods.error(e)
+                })
+
+            }
+
+            methods.uploadFile = function (path, field) {
+
+                let form = this
+
+                if (!scope.file) {
+                    scope.file = {}
+                }
+
+                if (!path) {
+                    path = 'documents'
+                }
+
+                var file_input = document.querySelector("#new_file_"+field),
+                    file = file_input.files[0],
+                    now = moment().toISOString()
+
+                    scope.view.loading = false
+
+                    scope.file.type = file.type.split('/')[0]
+                    scope.file.type = scope.file.type == 'application' ? 'document' : scope.file.type
+                    scope.file.extension = file.name.split('.').pop()
+                    scope.file.extension = scope.file.extension.toLowerCase()
+                    scope.file.name = file.name.replace(/\.[a-z0-9A-Z]+$/, '')
+                    scope.file.file_name = scope.record.username + '.' + scope.file.extension
+
+                    var form_data = new FormData()
+                    form_data.append('new_file_' + field, new File([file], scope.file.file_name, { type: file.type }))
+
+                    scope.file.tags = scope.window.path_obj.map((path) => { return { field: false, tag: path, timestamp: now } })
+                    scope.file.path = scope.file.type == 'application' ? 'documents' : scope.file.type + 's'
+
+
+                    http.upload('/upload', form_data, (progress) => {
+                        console.log(`Upload progress: ${progress}%`);
+                        scope.view.loading_progress = progress + '%'
+                    })
+                        .then((response) => {
+
+                            scope.view.loading_progress = false
+
+                        //   if (save === true) {
+
+                                http.post('/api/files', scope.file).then((data) => {
+
+                                    if (!scope.files) {
+                                        scope.files = []
+                                    }
+
+                                    let idx = scope.files.findIndex(file => file._id == data._id)
+                                    if (idx < 0) {
+                                        scope.files.push(data)
+                                    }
+
+                                    scope.record[field] = data.image
+                                    console.log(data)
+
+                                }).catch((e) => {
+                                    methods.error(e)
+                                })
+
+                            // } else {
+                            //     scope.record = { ...scope.record, ...scope.file }
+                            //     console.log(scope.record)
+                            // }
+
+                        })
+                        .catch(error => console.error('Upload failed:', error));
+
+                }
+
+        }
+
+    </script>
+
+    <script src="/js/framework-33/v3.0/functions.js?v=3"></script>
+    <script src="/js/framework-33/v3.0/controller.js?v=3"></script>
+
+</body>
+</html>
+
+

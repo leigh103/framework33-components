@@ -1,0 +1,28 @@
+<%- header %>
+
+<body>
+
+    <section class="page">
+        <div class="contain py-1">
+            <h1 class="mb-2">Profiles</h1>
+
+            <% if (typeof profiles != 'undefined' && Array.isArray(profiles)){ %>
+                <div class="profiles">
+                    <% profiles.forEach((profile, i) =>{ %>
+                        
+                        <%- include('partials/profile.ejs', profile) %>
+                        
+                    <% }) %>    
+                </div>
+            <% } %>
+        </div>
+    </section>
+
+
+<%- footer %>
+
+ <script src="/js/framework-33/v3.0/functions.js?v=3"></script>
+    <script src="/js/framework-33/v3.0/controller.js?v=3"></script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<%- header %>
+
+<body>
+
+    <section class="page messages">
+        <div class="contain py-2 relative h-100 flex">
+  
+    <% let field_data = {} %>
+
+    <div class="flex-1" id="records" app-class="{'open':thread.length > 0}">
+
+        <div class="records">
+
+            <div class="record"><a href="/account"><i class="bx bx-chevron-left"></i> Account</a></div>
+            <% if (Array.isArray(records)){ %>
+                <% records.forEach((record, i) => { %>
+
+                    <div class="record <% if (record._read || record.from == user._id){ %>read<% } else {%>unread<% } %> <% if (record.to == user._id){ %>sent<% } else { %>received<% } %>"  id="<%- record._id.replace('/','_') %>">
+
+                        <% if (record.recipient && record.recipient._id && record.recipient._id != user._id){ %>
+                            
+                            <thumb-nail name="<%- record.recipient.name %>" src="<%- record.recipient.thumbnail %>" ></thumb-nail>
+                        
+                        <% } else if (record.sender && record.sender._id && record.sender._id != user._id){ %>
+                            
+                            <thumb-nail name="<%- record.sender.name %>" src="<%- record.sender.thumbnail %>"></thumb-nail>    
+                        
+                        <% } else { %>
+
+                            <thumb-nail name="<%- record.from %>"></thumb-nail>    
+
+                        <% } %>
+                
+                        <div app-click="getThread('<%- record._id %>')" class="flex-1">
+
+                            <% 
+
+                                var name
+                                if (record.sender && record.sender._id && record.sender._id != user._id){ 
+                                    name = record.sender.name
+                                } else if (record.recipient && record.recipient._id && record.recipient._id != user._id){ 
+                                    name = record.recipient.name
+                                } else if (record.from && record.from != user._id){
+                                    name = record.from
+                                } else {
+                                    name = record.to
+                                }
+                            
+                            %>
+                            <div class="field name"><%- name %></div>
+
+                            <% if (record.subject){ %>
+                                <div class="field excerpt font-weight-500"><%- record.subject %></div>
+                            <% } else if (record.excerpt){ %>
+                                <div class="field excerpt"><%- record.excerpt %></div>
+                            <% } %>
+
+                        </div>
+
+                    </div>
+
+                <% }) %>
+            <% } %>
+        </div>
+
+
+    </div>
+    
+    <div class="thread-wrapper" app-show="thread">
+    
+        <div id="thread" class="records" app-class="record.method">
+            <div class="record mail" app-for="rec in thread" app-class="isSent(rec)">
+
+                <!-- <div class="text-center mb-05" app-bind="parseDate(rec._created,'ago')"></div> -->
+                <div class="content">
+                    <div app-bind="rec.content"></div>
+                </div>
+
+                <div class="error" app-if="rec.error" app-bind="rec.error"></div>
+            </div>
+        </div>
+
+        <div class="new flex pb-1" app-show="view.thread_id">
+            
+            <button class="round mr-05 flex-none btn bg-white hidden-d" app-click="thread = []"><i class="bx bx-chevron-left"></i></button>
+        
+            <input type="text" class="bg-white" app-model="view.send_message.content" app-attr="{'placeholder':getPlaceholder(record)}">
+
+            <button class="round ml-05 flex-none btn bg-primary" app-click="sendReply()"><i class="bx bx-send"></i></button>
+
+        </div>
+
+    </div>
+
+
+
+    </section>
+
+    <%- footer %>
+
+    <script>
+
+        extend.messages = function(){
+
+            socketConnect("<%- view.websocket.url %>")
+
+            scope.records = <%- JSON.stringify(records) %>
+            scope.view = {
+                user: <%- JSON.stringify(user) %>
+            }
+
+            methods.getThread = async (id) => {
+
+                if (!id) {
+                    return
+                }
+
+                
+                let record_els = document.querySelectorAll('.records .record'),
+                    key = id.replace('/', '_')
+
+                for (var i = 0; i < record_els.length; i++) {
+
+                    let el = record_els[i]
+
+                    el.classList.remove('selected')
+
+                    if (el.id == key) {
+                        el.classList.remove('unread')
+                        el.classList.add('read')
+                        el.classList.add('selected')
+                    }
+
+                }
+
+                scope.record = scope.records.find(rec => rec._id == id)//await http.get(`/api/${id}/read`)
+                scope.view.thread_id = scope.record._link
+
+                if (id) {
+
+                    http.get('/api/' + id + '/thread').then((data) => {
+
+                        scope.thread = data
+                        scrollToBottomOf('#thread')
+
+                    })
+  
+                } else {
+                    setTimeout(function () {
+                        // scope.view.loading = false
+                    }, 500)
+                }
+
+            }
+
+            document.addEventListener('keyup', (e) => {
+                if (e.key == 'Enter' && scope.record._id && scope.view.send_message.content){
+                    methods.sendReply()
+                }
+            });
+
+        }
+
+    </script>
+
+    <%- include(basedir+'/themes/default/views/pages/dashboard/scripts/notifications.ejs') %>
+
+    <script src="/js/framework-33/v3.0/functions.js?v=3"></script>
+    <script src="/js/framework-33/v3.0/controller.js?v=3"></script>
+
+</body>
+</html>

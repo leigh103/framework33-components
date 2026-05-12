@@ -1,0 +1,8 @@
+<a href="/profile/<%- username %>" class="profile" style="background-image: url(<%- avatar.small %>)">
+    <div class="details">
+        <thumb-nail name="<%- username %>" src="<%- avatar.small %>" data-size="4rem"></thumb-nail>
+        <h2><%- username %></h2>
+        <div class="font-small capitalise"><%- gender %> <%- moment(Date.now()).diff(dob, 'years') %></div>
+    </div>
+
+</a>
