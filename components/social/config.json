@@ -11,6 +11,75 @@
                 "slug": "social_users/all",
                 "icon": "group",
                 "weight": 1
+            },
+            {
+                "active": true,
+                "location": "social",
+                "name": "Social",
+                "slug": "/",
+                "icon": "",
+                "type":"heading",
+                "weight": 1
+            },
+            {
+                "active": true,
+                "location": "social",
+                "name": "Profiles",
+                "slug": "/profiles",
+                "icon": "",
+                "weight": 2
+            },
+            {
+                "active": true,
+                "authenticated":true,
+                "not_authenticated":false,
+                "protected_guards":["SocialUsers"],
+                "location": "social",
+                "name": "Account",
+                "slug": "/account",
+                "icon": "",
+                "weight": 19
+            },
+            {
+                "active": true,
+                "authenticated":true,
+                "not_authenticated":false,
+                "location": "social",
+                "name": "Logout",
+                "slug": "/logout",
+                "icon": "",
+                "weight": 20
+            },
+            {
+                "active": true,
+                "authenticated":false,
+                "not_authenticated":true,
+                "location": "social",
+                "name": "Login",
+                "slug": "/login",
+                "icon": "",
+                "weight": 20
+            },
+             {
+                "active": true,
+                "authenticated":false,
+                "not_authenticated":true,
+                "location": "social",
+                "name": "Register",
+                "slug": "/sign-up",
+                "icon": "",
+                "weight": 19
+            },
+            {
+                "active": true,
+                "authenticated":true,
+                "not_authenticated":false,
+                "protected_guards":["Administrators"],
+                "location": "social",
+                "name": "Dashboard",
+                "slug": "/dashboard",
+                "icon": "",
+                "weight": 99
             }
         ],
         "blocks": [],

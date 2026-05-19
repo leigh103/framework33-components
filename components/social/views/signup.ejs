@@ -1,0 +1,37 @@
+
+
+    <section class="page pb-3">
+        <div class="contain">
+            <h1>Sign Up</h1>
+
+            <div id="username" class="input-text">
+                <label>Username</label>
+                <input type="text" app-model="record.username">
+            </div>
+
+            <div id="email" class="input-text">
+                <label>email</label>
+                <input type="text" app-model="record.email">
+            </div>
+
+
+            <div id="password" class="input-text">
+                <label>Password</label>
+                <input type="password" app-model="record.password">
+            </div>
+
+            <div id="password_confirmation" class="input-text">
+                <label>Confirm Password</label>
+                <input type="password" app-model="record.password_confirmation">
+            </div>
+            <input type="hidden" id="fp">
+
+            <button class="btn bg-primary" app-click="signUp()">Save</button>
+
+        </div>
+
+
+    </section>
+
+
+

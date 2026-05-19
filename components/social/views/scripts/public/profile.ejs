@@ -1,0 +1,44 @@
+<script src="/js/moment.js?v=2.29.2"></script>
+<script src="/js/components/widget-core.js"></script>
+<script src="/js/components/thumbnail.js"></script>
+<script>
+
+        window.sendMessageModalConfig = {
+            title: 'Send Message',
+            closeOnOverlay: true,
+            customClass: 'medium',
+            inputs: [
+                {name:'content', label:'Message', input_type:'textarea'}
+            ],
+            buttons: {
+                cancel: true,
+                ok: 'Send'
+            }
+        }
+
+        extend.profile = function(){
+
+            methods.sendMessage = function (new_message) {
+
+                modal.closeAll()
+                modal.openTemplate('sendMessage').then(result => {
+
+                    let payload = {
+                        to: '<%- record._id %>',
+                        subject: result.data.subject,
+                        content: result.data.content
+                    }
+        
+                    http.post('/api/notification/send', payload).then((data) => {
+                        methods.notify('Sent!')
+                    }).catch((e) => {
+                        methods.error(e,'error')
+                    })
+                })
+
+            }
+
+        }
+
+    </script>
+

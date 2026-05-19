@@ -20,15 +20,16 @@ class SocialUsers extends Users {
 
         // Add game-specific fields
         this.fields = [
-            {name:'avatar',input_type:'image',type:'image', thumbnail:true},
-            {name:'background',input_type:'image',type:'image',basic:true},
+            {name:'avatar',tab:'images', input_type:'image',type:'image', thumbnail:true},
+            {name:'background',tab:'images', input_type:'image',type:'image'},
             {name:'username',input_type:'text', table_link:true, type:'string', required:true},
             {name:'password',input_type:'hidden', type:'password', required:false},
             {name:'email',input_type:'email', type:'email', permission:'client_contacts', required:true, table_show:true, analyzers: ['identity']},
             {name:'tel',input_type:'text', type:'tel', permission:'client_contacts', required:false, style:'padding-bottom: 1em', table_show:true, analyzers: ['identity']},
-            {name:"dob", label:'Date of birth', input_type:"date", type:"date", format:'Do MMMM YYYY', required:false},
-            {name:"gender", input_type:"select", options: view.genders, type:"string", required:false, analyzers: ['identity']},
+            {name:"dob", label:'Date of birth', input_type:"date", type:"date", format:'Do MMMM YYYY', required:true},
+            {name:"gender", input_type:"select", options: view.genders, type:"string", required:true, analyzers: ['identity']},
             {name:"account_type", input_type:"select", options: this.account_types, type:"string"},
+            {name:'description', type:'string', input_type:'textarea', tab:'About you'},
              {name:'address', type:'object', input_type:'object',modal_hide: true,  required:false, tab:'address', subitems:[
                 {name:'address_line1',input_type:'text',label:'Address Line 1', type:'string', required:false},
                 {name:'address_line2',input_type:'text',label:'Address Line 2', type:'string', required:false},

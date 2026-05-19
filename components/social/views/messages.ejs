@@ -1,6 +1,3 @@
-<%- header %>
-
-<body>
 
     <section class="page messages">
         <div class="contain py-2 relative h-100 flex">
@@ -96,77 +93,4 @@
 
     </section>
 
-    <%- footer %>
 
-    <script>
-
-        extend.messages = function(){
-
-            socketConnect("<%- view.websocket.url %>")
-
-            scope.records = <%- JSON.stringify(records) %>
-            scope.view = {
-                user: <%- JSON.stringify(user) %>
-            }
-
-            methods.getThread = async (id) => {
-
-                if (!id) {
-                    return
-                }
-
-                
-                let record_els = document.querySelectorAll('.records .record'),
-                    key = id.replace('/', '_')
-
-                for (var i = 0; i < record_els.length; i++) {
-
-                    let el = record_els[i]
-
-                    el.classList.remove('selected')
-
-                    if (el.id == key) {
-                        el.classList.remove('unread')
-                        el.classList.add('read')
-                        el.classList.add('selected')
-                    }
-
-                }
-
-                scope.record = scope.records.find(rec => rec._id == id)//await http.get(`/api/${id}/read`)
-                scope.view.thread_id = scope.record._link
-
-                if (id) {
-
-                    http.get('/api/' + id + '/thread').then((data) => {
-
-                        scope.thread = data
-                        scrollToBottomOf('#thread')
-
-                    })
-  
-                } else {
-                    setTimeout(function () {
-                        // scope.view.loading = false
-                    }, 500)
-                }
-
-            }
-
-            document.addEventListener('keyup', (e) => {
-                if (e.key == 'Enter' && scope.record._id && scope.view.send_message.content){
-                    methods.sendReply()
-                }
-            });
-
-        }
-
-    </script>
-
-    <%- include(basedir+'/themes/default/views/pages/dashboard/scripts/notifications.ejs') %>
-
-    <script src="/js/framework-33/v3.0/functions.js?v=3"></script>
-    <script src="/js/framework-33/v3.0/controller.js?v=3"></script>
-
-</body>
-</html>

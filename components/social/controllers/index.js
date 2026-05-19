@@ -1,18 +1,18 @@
-    
- 
+import SocialUsers from "../models/SocialUsers.js"
+import { renderMenu } from '../../../core/models/Menus.js'
+import WebPageLayouts from "../../../core/models/WebPageLayouts.js"
 
-    Routes.get('account',setTheme('/components/social/views', 'public'), async (req, res)=>{
+
+    Routes.get('account', async (req, res)=>{
 
         if (req.session?.user?._id){
 
-            let layout = await DB.read('web_page_layouts').where(['name == social']).first()
-
             let data = {
-                user: req.session.user,
-                header: layout.header,
-                footer: layout.footer,
+                user: res.locals.user,
                 model: new SocialUsers()
             }
+
+            data.unread = await data.model.unread(false, req)
 
             data.record = await data.model.find(req.session.user._id)
 
@@ -20,9 +20,9 @@
                 data.record = data.record.get()
                 data.fields = await data.model.parseEditFields(res.locals.user)
 
-                for (var key in data.fields){
+                for (var tab in data.fields){
 
-                    data.fields[key] = data.fields[key].map((field)=>{
+                    data.fields[tab] = data.fields[tab].map((field)=>{
 
                         if (field.input_type == 'image'){
                             field.basic = true
@@ -34,7 +34,16 @@
                     
                 }
 
-                res.render('account.ejs', data)
+                let layout_data = {
+                    view: '/components/social/views',
+                    page:'account',
+                    scripts:'scripts/public/account',
+                    layout:'social'
+                }
+
+                let html = await renderPage(layout_data, data)
+                res.send(html)
+
             } else {
                 res.redirect('/login')
             }
@@ -48,12 +57,8 @@
 
     Routes.get('profiles',':filter?', setTheme('/components/social/views', 'public'), async (req, res)=>{
 
-        let layout = await DB.read('web_page_layouts').where(['name == social']).first()
-
         let data = {
-            user: req.session?.user || {},
-            header: layout.header,
-            footer: layout.footer
+            user: req.session?.user || {}
         }
 
         let filter = ['account_type == provider']
@@ -67,21 +72,25 @@
 
         }
 
-        data.profiles = await DB.read('social_users').where(filter).show(['username','avatar','dob','gender']).get()
+        data.profiles = await DB.read('social_users').where(filter).show(['username','avatar','background','dob','gender']).get()
 
-        res.render('profiles.ejs', data)
+        let layout_data = {
+            view: '/components/social/views',
+            page:'profiles',
+            scripts:'scripts/public/default',
+            layout:'social'
+        }
+
+        let html = await renderPage(layout_data, data)
+        res.send(html)
 
     })
 
 
     Routes.get('profile',':key',setTheme('/components/social/views', 'public'), async (req, res)=>{
 
-        let layout = await DB.read('web_page_layouts').where(['name == social']).first()
-
         let data = {
             user: req.session.user,
-            header: layout.header,
-            footer: layout.footer,
             model: new SocialUsers()
         }
 
@@ -92,7 +101,15 @@
             await data.model.sanitize()
             data.record = data.model.get()
 
-            res.render('profile.ejs', data)
+            let layout_data = {
+                view: '/components/social/views',
+                page:'profile',
+                scripts:'scripts/public/profile',
+                layout:'social'
+            }
+
+            let html = await renderPage(layout_data, data)
+            res.send(html)
             
         } else {
             res.redirect('/404')
@@ -107,12 +124,8 @@
 
         if (req.session?.user?._id){
 
-            let layout = await DB.read('web_page_layouts').where(['name == social']).first()
-
             let data = {
-                user: req.session.user,
-                header: layout.header,
-                footer: layout.footer
+                user: req.session.user
             }
 
             data.model = new Notification()
@@ -123,10 +136,92 @@
     
             data.fields = await data.model.parseEditFields(res.locals.user)
 
-            res.render('messages.ejs', data)
+            let layout_data = {
+                view: '/components/social/views',
+                page:'messages',
+                scripts:'scripts/public/messages',
+                layout:'social'
+            }
+
+            let html = await renderPage(layout_data, data)
+            res.send(html)
 
         } else {
             res.redirect('/login')
+        }
+
+    })
+
+    Routes.get('sign-up',setTheme('/components/social/views', 'public'), async (req, res)=>{
+
+        if (req.session?.user?._id){
+        
+            res.redirect('/account')
+
+        } else {
+
+            let data = {
+                user: req.session.user
+            }
+
+            let layout_data = {
+                view: '/components/social/views',
+                page:'signup',
+                scripts:'scripts/public/signup',
+                layout:'social'
+            }
+
+            let html = await renderPage(layout_data, data)
+            res.send(html)
+        }
+
+    })
+
+    Routes.post('sign-up',setTheme('/components/social/views', 'public'), async (req, res)=>{
+
+        if (isSet(req,'session','bot') && req.session.bot === true){
+            return res.status(404).send('Bot protection activated')
+        }
+
+        if (req.session?.user?._id){
+        
+            res.redirect('/account')
+
+        } else {
+
+            let existing = await DB.read('social_users').where(['username.toLowerCase == '+req.body.username.toLowerCase()]).show(['_id']).first()
+
+            if (existing && existing._id){
+                return res.status(401).send("That username isn't available, please chose another")
+            } else {
+
+                let payload = {
+                    username: req.body.username,
+                    email: req.body.email,
+                    password: req.body.password
+                }
+
+                let password_payload = {
+                    password: req.body.password,
+                    password_confirmation: req.body.password_confirmation
+                }
+
+                let password = await new Users().passwordValidation(password_payload)
+
+                if (password.error){
+                    return res.status(401).send(password.error)
+                }
+
+                let new_user = await new SocialUsers(payload).save()
+
+                if (new_user.error){
+                    return res.status(500).send(new_user.error)
+                }
+
+                return res.redirect("/login")
+            }
+            
+            
         }
 
     })
@@ -141,9 +236,23 @@
 
             let payload = {
                 name: 'social',
-                header:'',
+                header:`<head>
+  <link href="/style/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/style/framework-33/v3.0/framework33.css">
+  <link rel="stylesheet" href="/style/basic.css">
+</head>`,
                 styling:'',
-                footer:''
+                nav:'social',
+                nav_classes:'horizontal',
+                footer:`<footer>
+  <div class="contain flex">
+
+  </div>
+</footer>
+<script src="/js/framework-33/v3.0/framework33.js?v=3"></script>
+<!-- scripts -->
+<script src="/js/framework-33/v3.0/functions.js?v=3"></script>
+<script src="/js/framework-33/v3.0/controller.js?v=3"></script>`
             }
 
             await DB.create('web_page_layouts', payload)

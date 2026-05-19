@@ -1,64 +1,19 @@
-<%- header %>
 
-<body>
-
+    <% if (record.background){ %> 
+    <section class="page hero">
+        <div class="background" style="background-image: url('<%- record.background.medium %>')"></div>
+    </section>
+    <% } %>
     <section class="page">
         <div class="contain py-1">
-            <thumb-nail name="<%- record.username %>" src="<%- record.avatar.small %>"></thumb-nail>
+            <thumb-nail name="<%- record.username %>" <% if (typeof avatar != 'undefined'){ %>src="<%- record.avatar.small %>"<% } %>></thumb-nail>
             <h1><%- record.username %></h1>
             <div><%- moment(Date.now()).diff(record.dob, 'years') %></div>
             <div><%- record.gender %></div>
 
             <button class="btn mt-2 bg-primary" app-click="sendMessage()">Message</button>
+
+            <div class="mt-2"><%- record.description %></div>
         </div>
     </section>
 
-
-<%- footer %>
-
-    <script>
-
-        window.sendMessageModalConfig = {
-            title: 'Send Message',
-            closeOnOverlay: true,
-            customClass: 'medium',
-            inputs: [
-                {name:'content', label:'Message', input_type:'textarea'}
-            ],
-            buttons: {
-                cancel: true,
-                ok: 'Send'
-            }
-        }
-
-        extend.profile = function(){
-
-            methods.sendMessage = function (new_message) {
-
-                modal.closeAll()
-                modal.openTemplate('sendMessage').then(result => {
-
-                    let payload = {
-                        to: '<%- record._id %>',
-                        subject: result.data.subject,
-                        content: result.data.content
-                    }
-        
-                    http.post('/api/notification/send', payload).then((data) => {
-                        methods.notify('Sent!')
-                    }).catch((e) => {
-                        methods.error(e,'error')
-                    })
-                })
-
-            }
-
-        }
-
-    </script>
-
-    <script src="/js/framework-33/v3.0/functions.js?v=3"></script>
-    <script src="/js/framework-33/v3.0/controller.js?v=3"></script>
-
-</body>
-</html>
