@@ -1,0 +1,5 @@
+<div class="menu">
+    <a href="/account" class="capitalise">Account</a>
+    <a href="/account/messages" class="capitalise">Messages<% if (typeof unread != 'undefined' && unread > 0){ %> <span class="counter"><%- unread %></span><% } %></a>
+    <a href="/account/posts" class="capitalise">Posts</a>
+</div>

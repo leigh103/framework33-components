@@ -2,8 +2,9 @@
 <script src="/js/moment.js?v=2.29.2"></script>
 <script src="/js/components/widget-core.js"></script>
 <script src="/js/components/thumbnail.js"></script>
-
+<script src="/js/components/file-browser.js"></script>
 <script>
+
 
         extend.account = function(){
 
@@ -28,6 +29,70 @@
 
             }
 
+            methods.fileBrowser = function (field, type, field_type) {
+
+                // programmatically add a hidden upload field which uploadFile will query
+
+
+                scope.file = {
+                    field_type: field_type ? field_type : 'string',
+                    field: field,
+                    type: type,
+                    value: scope[field]
+                }
+
+                if (typeof scope.file.value == 'undefined') {
+                    if (field_type == 'object') {
+                        scope.file.value = {}
+                    } else if (field_type == 'array') {
+                        scope.file.value = []
+                    } else {
+                        scope.file.value = ''
+                    }
+                }
+
+                let query = ''
+                if (scope.file.type) { query = '?type=' + scope.file.type }
+
+                modal.create({
+                    title: 'Files',
+                    content: `
+                        <file-browser data-query="${query}"></file-browser>
+                    `,
+                    buttons: {
+                        cancel: false,
+                        ok: false,
+                        custom: [
+                            {
+                                text: 'Cancel',
+                                class: 'btn bg-white',
+                                closeAction: 'cancel' 
+                            },
+                            {
+                                text: 'Upload',
+                                class: 'btn bg-primary-light',
+                                action: 'uploadFile'
+                            }
+                        ]
+                    }
+                })
+
+            }
+
+             methods.removeFile = function (field, idx) {
+
+                if (idx >= 0) {
+                    let array = app.getNestedValue(field)
+                    array.splice(idx, 1)
+                } else {
+                    app.setNestedValue(field, null);
+                }
+
+            //  app.scheduleUpdate([field.split('.')[0]]);
+            //      methods.saveRecord()
+
+        }
+
             methods.uploadFile = function (path, field) {
 
                 let form = this
@@ -45,19 +110,17 @@
                 form_data = new FormData(form),
                 now = moment().toISOString()
 
-            scope.view.loading = false
+                scope.view.loading = false
 
-            scope.file.file_name = file.name
-            scope.file.type = file.type.split('/')[0]
-            scope.file.type = scope.file.type == 'application' ? 'document' : scope.file.type
-            scope.file.extension = file.name.split('.').pop()
-            scope.file.extension = scope.file.extension.toLowerCase()
-            scope.file.name = file.name.replace(/\.[a-z0-9A-Z]+$/, '')
+                scope.file.file_name = file.name
+                scope.file.type = file.type.split('/')[0]
+                scope.file.type = scope.file.type == 'application' ? 'document' : scope.file.type
+                scope.file.extension = file.name.split('.').pop()
+                scope.file.extension = scope.file.extension.toLowerCase()
+                scope.file.name = file.name.replace(/\.[a-z0-9A-Z]+$/, '')
 
-            scope.file.tags = scope.window.path_obj.map((path) => { return { field: false, tag: path, timestamp: now } })
-            scope.file.path = scope.file.type == 'application' ? 'documents' : scope.file.type + 's'
-
-
+                scope.file.tags = scope.window.path_obj.map((path) => { return { field: false, tag: path, timestamp: now } })
+                scope.file.path = scope.file.type == 'application' ? 'documents' : scope.file.type + 's'
 
                     http.upload('/upload', form_data, (progress) => {
                         console.log(`Upload progress: ${progress}%`);
@@ -95,7 +158,7 @@
                         })
                         .catch(error => console.error('Upload failed:', error));
 
-                }
+            }
 
         }
 

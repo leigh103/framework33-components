@@ -1,93 +1,99 @@
 
     <section class="page messages">
-        <div class="contain py-2 relative h-100 flex">
+        <div class="contain relative h-100">
+
+            <h1>Messages</h1>
   
-    <% let field_data = {} %>
+            <% let field_data = {} %>
 
-    <div class="flex-1" id="records" app-class="{'open':thread.length > 0}">
+            <div class="grid col-9 gap-1 h-100">
 
-        <div class="records">
+                <div class="colspan-2 colspan-m-3 colspan-s-9 records" id="records" app-class="{'open':thread.length > 0}">
 
-            <div class="record"><a href="/account"><i class="bx bx-chevron-left"></i> Account</a></div>
-            <% if (Array.isArray(records)){ %>
-                <% records.forEach((record, i) => { %>
+                    <div class="record"><a href="/account">Account</a></div>
 
-                    <div class="record <% if (record._read || record.from == user._id){ %>read<% } else {%>unread<% } %> <% if (record.to == user._id){ %>sent<% } else { %>received<% } %>"  id="<%- record._id.replace('/','_') %>">
+                    <% if (Array.isArray(records)){ %>
+                        <% records.forEach((record, i) => { %>
 
-                        <% if (record.recipient && record.recipient._id && record.recipient._id != user._id){ %>
-                            
-                            <thumb-nail name="<%- record.recipient.name %>" src="<%- record.recipient.thumbnail %>" ></thumb-nail>
+                            <div class="record <% if (record._read || record.from == user._id){ %>read<% } else {%>unread<% } %> <% if (record.to == user._id){ %>sent<% } else { %>received<% } %>"  id="<%- record._id.replace('/','_') %>">
+
+                                <% if (record.recipient && record.recipient._id && record.recipient._id != user._id){ %>
+                                    
+                                    <thumb-nail name="<%- record.recipient.name %>" src="<%- record.recipient.thumbnail %>" ></thumb-nail>
+                                
+                                <% } else if (record.sender && record.sender._id && record.sender._id != user._id){ %>
+                                    
+                                    <thumb-nail name="<%- record.sender.name %>" src="<%- record.sender.thumbnail %>"></thumb-nail>    
+                                
+                                <% } else { %>
+
+                                    <thumb-nail name="<%- record.from %>"></thumb-nail>    
+
+                                <% } %>
                         
-                        <% } else if (record.sender && record.sender._id && record.sender._id != user._id){ %>
-                            
-                            <thumb-nail name="<%- record.sender.name %>" src="<%- record.sender.thumbnail %>"></thumb-nail>    
-                        
-                        <% } else { %>
+                                <div app-click="getThread('<%- record._id %>')" class="flex-1">
 
-                            <thumb-nail name="<%- record.from %>"></thumb-nail>    
+                                    <% 
 
-                        <% } %>
+                                        var name
+                                        if (record.sender && record.sender._id && record.sender._id != user._id){ 
+                                            name = record.sender.name
+                                        } else if (record.recipient && record.recipient._id && record.recipient._id != user._id){ 
+                                            name = record.recipient.name
+                                        } else if (record.from && record.from != user._id){
+                                            name = record.from
+                                        } else {
+                                            name = record.to
+                                        }
+                                    
+                                    %>
+                                    <div class="field name"><%- name %></div>
+
+                                    <% if (record.excerpt){ %>
+                                        <div class="field excerpt"><%- record.excerpt %></div>
+                                    <% } %>
+
+                                </div>
+
+                            </div>
+
+                        <% }) %>
+                    <% } %>
+                </div>
+    
+                <div class="colspan-7 colspan-m-6 colspan-s-9 thread-wrapper" app-show="thread">
                 
-                        <div app-click="getThread('<%- record._id %>')" class="flex-1">
+                    <div id="thread" class="records" app-class="record.method">
+                        <div class="record mail" app-for="rec in thread" app-class="isSent(rec)">
 
-                            <% 
+                            <!-- <div class="text-center mb-05" app-bind="parseDate(rec._created,'ago')"></div> -->
+                            <div class="content">
+                                <div app-bind="rec.content"></div>
+                            </div>
 
-                                var name
-                                if (record.sender && record.sender._id && record.sender._id != user._id){ 
-                                    name = record.sender.name
-                                } else if (record.recipient && record.recipient._id && record.recipient._id != user._id){ 
-                                    name = record.recipient.name
-                                } else if (record.from && record.from != user._id){
-                                    name = record.from
-                                } else {
-                                    name = record.to
-                                }
-                            
-                            %>
-                            <div class="field name"><%- name %></div>
-
-                            <% if (record.subject){ %>
-                                <div class="field excerpt font-weight-500"><%- record.subject %></div>
-                            <% } else if (record.excerpt){ %>
-                                <div class="field excerpt"><%- record.excerpt %></div>
-                            <% } %>
-
+                            <div class="error" app-if="rec.error" app-bind="rec.error"></div>
                         </div>
+                    </div>
+
+                    <div id="attachments">
+   
+                        </div>
+
+                    <div class="new flex pb-1" app-show="view.thread_id">
+
+                        
+                        
+                        <!-- <button class="round mr-05 flex-none btn bg-white hidden-d" app-click="thread = []"><i class="bx bx-chevron-left"></i></button> -->
+                        <file-browser data-field="view.send_message.attachments" data-type="image" data-field-type="array" data-preview="#attachments" class="mr-05"></file-browser>
+                        <input type="text" class="bg-white" app-model="view.send_message.content" app-attr="{'placeholder':getPlaceholder(record)}">
+
+                        <button class="round ml-05 flex-none btn bg-primary" app-click="sendReply()"><i class="bx bx-send"></i></button>
 
                     </div>
 
-                <% }) %>
-            <% } %>
-        </div>
-
-
-    </div>
-    
-    <div class="thread-wrapper" app-show="thread">
-    
-        <div id="thread" class="records" app-class="record.method">
-            <div class="record mail" app-for="rec in thread" app-class="isSent(rec)">
-
-                <!-- <div class="text-center mb-05" app-bind="parseDate(rec._created,'ago')"></div> -->
-                <div class="content">
-                    <div app-bind="rec.content"></div>
                 </div>
 
-                <div class="error" app-if="rec.error" app-bind="rec.error"></div>
             </div>
-        </div>
-
-        <div class="new flex pb-1" app-show="view.thread_id">
-            
-            <button class="round mr-05 flex-none btn bg-white hidden-d" app-click="thread = []"><i class="bx bx-chevron-left"></i></button>
-        
-            <input type="text" class="bg-white" app-model="view.send_message.content" app-attr="{'placeholder':getPlaceholder(record)}">
-
-            <button class="round ml-05 flex-none btn bg-primary" app-click="sendReply()"><i class="bx bx-send"></i></button>
-
-        </div>
-
-    </div>
 
 
 

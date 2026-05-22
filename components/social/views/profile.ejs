@@ -1,19 +1,46 @@
 
-    <% if (record.background){ %> 
-    <section class="page hero">
-        <div class="background" style="background-image: url('<%- record.background.medium %>')"></div>
-    </section>
-    <% } %>
-    <section class="page">
+
+    <section class="page profile">
         <div class="contain py-1">
-            <thumb-nail name="<%- record.username %>" <% if (typeof avatar != 'undefined'){ %>src="<%- record.avatar.small %>"<% } %>></thumb-nail>
-            <h1><%- record.username %></h1>
-            <div><%- moment(Date.now()).diff(record.dob, 'years') %></div>
-            <div><%- record.gender %></div>
 
-            <button class="btn mt-2 bg-primary" app-click="sendMessage()">Message</button>
+            <div class="grid col-9 gap-1">
 
-            <div class="mt-2"><%- record.description %></div>
+                <div class="colspan-3 colspan-m-4 colspan-s-9">
+                    <% if (record.background){ %><div class="banner rounded overflow-hidden mb-1"><img src="<%- record.background.small %>"></div><% } %>
+                    <div class="relative layer-2">
+                        <!-- <thumb-nail data-size="4rem" name="<%- record.username %>" <% if (typeof avatar != 'undefined'){ %>src="<%- record.avatar.small %>"<% } %>></thumb-nail> -->
+                        <h1><%- record.username %></h1>
+                        <div><%- moment(Date.now()).diff(record.dob, 'years') %></div>
+                        <div><%- record.gender %></div>
+                        <% if (record.description){ %><div class="mt-2"><%- record.description %></div><% } %>
+                    </div>
+
+                    <% if (user && user._id != record._id){ %>
+                    <button class="btn mt-2 bg-primary w-100" app-click="sendMessage()">Message</button>
+                    <% if (isFollowing == true){ %>
+                        <button id="unfollow" class="btn mt-1 outline-primary w-100" app-click="follow()">Unfollow</button>
+                    <% } else { %>
+                        <button id="follow" class="btn mt-1 bg-primary w-100" app-click="follow()">Follow</button>
+                    <% } %>
+                    <!-- <a href="gallery" class="btn mt-1 outline-primary w-100">Gallery</a> -->
+                    <% } else { %>
+                        <a href="/account" class="btn mt-1 bg-primary w-100">Manage Profile</a>
+                    <% } %>
+                    <a href="/profile/<%- record.username %>/gallery" class="btn mt-1 bg-primary w-100">Gallery</a>
+                    
+                </div>
+
+                <div class="feed colspan-6 colspan-m-5 colspan-s-9">
+                    <div>Feed</div>
+                
+                    <div app-for="post in feed" class="post">
+                        <div class="subject" app-bind="post.subject"></div>
+                        <div class="date" app-bind="parseDate(post._created,'Do MMM YYYY h:mma')"></div>
+                        <div class="content" app-bind="post.content"></div>
+                        <div app-bind="post._gallery"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 

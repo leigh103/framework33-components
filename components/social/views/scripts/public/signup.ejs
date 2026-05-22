@@ -30,6 +30,13 @@
                 } else if (scope.record.password_confirmation != scope.record.password){
                     errorField('password',"Passwords don't match, please try again")
                     return
+                } else if (!scope.record._dob){
+                    errorField('dob',"Passwords set your date of birth")
+                    return
+                }
+
+                if (scope.record._dob){
+                    scope.record.dob = new Date(scope.record._dob).toISOString()
                 }
 
                 scope.record.fp = document.getElementById('fp').value
@@ -38,6 +45,7 @@
                     methods.error('Bot protection activated')
                     return false
                 }
+                console.log(scope.record)
 
                 http.post('/sign-up', scope.record).then((data) => {
                     modal.create({

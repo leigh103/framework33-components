@@ -20,19 +20,19 @@ import WebPageLayouts from "../../../core/models/WebPageLayouts.js"
                 data.record = data.record.get()
                 data.fields = await data.model.parseEditFields(res.locals.user)
 
-                for (var tab in data.fields){
+                // for (var tab in data.fields){
 
-                    data.fields[tab] = data.fields[tab].map((field)=>{
+                //     data.fields[tab] = data.fields[tab].map((field)=>{
 
-                        if (field.input_type == 'image'){
-                            field.basic = true
-                        }
+                //         if (field.input_type == 'image'){
+                //             field.basic = true
+                //         }
 
-                        return field
+                //         return field
 
-                    })
+                //     })
                     
-                }
+                // }
 
                 let layout_data = {
                     view: '/components/social/views',
@@ -55,13 +55,86 @@ import WebPageLayouts from "../../../core/models/WebPageLayouts.js"
         
     })
 
+    Routes.get('account/posts',':key?', async (req, res)=>{
+
+        if (req.session?.user?._id){
+
+            if (req.params.key){
+
+                let data = {
+                    user: res.locals.user,
+                    model: new SocialPosts(),
+                    record: {_key: 'new'}
+                }
+
+                if (req.params.key){
+                    data.record = await data.model.find(req.params.key)
+                    if (data.record.found()){
+                        data.record = data.record.get()
+                    }
+                }
+                
+                data.fields = await data.model.parseEditFields(res.locals.user)
+
+                for (var tab in data.fields){
+
+                    data.fields[tab] = data.fields[tab].map((field)=>{
+
+                        if (field.input_type == 'image'){
+                            field.basic = true
+                        }
+
+                        return field
+
+                    })
+                    
+                }
+
+                let layout_data = {
+                    view: '/components/social/views',
+                    page:'add_post',
+                    scripts:'scripts/public/add_post',
+                    layout:'social'
+                }
+
+                let html = await renderPage(layout_data, data)
+                res.send(html)
+
+            } else {
+
+                let data = {
+                    user: res.locals.user
+                }
+
+                let layout_data = {
+                    view: '/components/social/views',
+                    page:'posts',
+                    scripts:'scripts/public/posts',
+                    layout:'social'
+                }
+
+                let html = await renderPage(layout_data, data)
+                res.send(html)
+
+            }
+
+            
+
+        } else {
+            res.redirect('/login')
+        }
+            
+        
+    })
+
+
     Routes.get('profiles',':filter?', setTheme('/components/social/views', 'public'), async (req, res)=>{
 
         let data = {
             user: req.session?.user || {}
         }
 
-        let filter = ['account_type == provider']
+        let filter = ['account_type == provider', 'active == true']
         if (req.query){
             filter = filter.concat(view.parseQuery(req.query))
         }
@@ -101,6 +174,8 @@ import WebPageLayouts from "../../../core/models/WebPageLayouts.js"
             await data.model.sanitize()
             data.record = data.model.get()
 
+            data.isFollowing = await data.model.isFollowing({}, req)
+
             let layout_data = {
                 view: '/components/social/views',
                 page:'profile',
@@ -115,12 +190,43 @@ import WebPageLayouts from "../../../core/models/WebPageLayouts.js"
             res.redirect('/404')
         }
 
-        
+    })
+
+    Routes.get('profile',':key/gallery',setTheme('/components/social/views', 'public'), async (req, res)=>{
+
+        let data = {
+            user: req.session.user,
+            model: new SocialUsers()
+        }
+
+        await data.model.find(['username == '+req.params.key])
+
+        if (data.model.found()){
+
+            await data.model.sanitize()
+            
+            data.gallery = await data.model.getGallery({}, req)
+
+            data.isFollowing = await data.model.isFollowing({}, req)
+
+            let layout_data = {
+                view: '/components/social/views',
+                page:'profile_gallery',
+            //    scripts:'scripts/public/profile_gallery',
+                layout:'social'
+            }
+
+            let html = await renderPage(layout_data, data)
+            res.send(html)
+            
+        } else {
+            res.redirect('/404')
+        }
 
     })
 
 
-    Routes.get('messages',setTheme('/components/social/views', 'public'), async (req, res)=>{
+    Routes.get('account/messages', async (req, res)=>{
 
         if (req.session?.user?._id){
 
@@ -198,7 +304,10 @@ import WebPageLayouts from "../../../core/models/WebPageLayouts.js"
                 let payload = {
                     username: req.body.username,
                     email: req.body.email,
-                    password: req.body.password
+                    password: req.body.password,
+                    account_type: req.body.account_type,
+                    gender: req.body.gender,
+                    dob: req.body.dob
                 }
 
                 let password_payload = {

@@ -1,8 +1,8 @@
 
     
-    <section class="page">
+    <section class="page pb-3">
         <div class="contain">
-            <h1>Account</h1>
+            <h1>Add a post</h1>
             <div class="grid col-9 gap-1">
 
                 <div class="colspan-2 colspan-m-3 colspan-s-9">
@@ -12,18 +12,6 @@
                 </div>
 
                 <div class="colspan-7 colspan-m-6 colspan-s-9 feed">
-
-                    <% if (typeof fields == 'object') { %>
-                        <div class="tabs">
-                            <!-- <a app-click="goBack()"><span class="icon arrowleft white"></span></a> -->
-                                <% for (var tab in fields){ %>
-                                
-                                    <a app-click="openTab('<%- tab %>')" app-class="{'active':view.edit_tab == '<%- tab %>'}" class="capitalise"><%- view.parseName(tab) %></a>
-                                
-                                <% } %>
-                        </div>
-
-                    <% } %>
 
                     <% if (typeof fields == 'undefined') { %>
 
@@ -37,27 +25,25 @@
                     
                             <% if (Array.isArray(fields[tab]) && fields[tab].length > 0 && tab != 'sidebar') { %>
                     
-                                <div app-show="view.edit_tab == '<%- tab %>'" class="fields tab-<%- view.parseSnake(tab) %>">
-                    
                                     <% fields[tab].forEach((item,i) => { %>
                     
                                         <%- include(view.basedir+'/themes/default/views/fields/include_fields.ejs', {item:item}) %>
                     
                                     <% }) %>
                     
-                                </div>
                     
                             <% } %>
                     
                         <% } %>
                     
                     <% } %>
-                    <div class="text-right mt-2">
+
+                     <div class="text-right mt-2">
+                        <a href="/account/posts" class="btn outline-primary mr-1">Cancel</a>
                         <button class="btn bg-primary" app-click="saveRecord()">Save</button>
                     </div>
-
+                
                 </div>
-            </div>
         </div>
 
 

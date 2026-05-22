@@ -1,0 +1,21 @@
+
+
+<script>
+
+    extend.posts = function(){
+
+        methods.editPost = function(key){
+            window.location.href = '/account/posts/'+key
+        }
+
+        methods.getPosts = async () => {
+
+            scope.posts = await http.get('/api/social_posts')
+
+        }
+        methods.getPosts()
+
+    }
+
+
+</script>

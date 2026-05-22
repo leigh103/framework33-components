@@ -1,0 +1,39 @@
+
+<script src="/js/moment.js?v=2.29.2"></script>
+<script src="/js/components/widget-core.js"></script>
+<script src="/js/components/thumbnail.js"></script>
+<script src="/js/components/file-browser.js"></script>
+
+<script>
+
+    extend.add_post = function(){
+
+        scope.record = <%- JSON.stringify(record) %>
+
+        let key = scope.record._key,
+            url = '/api/social_posts/'+key
+
+            console.log(key, url)
+        if (!key){
+            url = '/api/social_posts/new'
+            key = 'new'
+            delete scope.record._key
+        }
+
+        methods.saveRecord = function(){
+            http.post(url, scope.record).then((data)=>{
+                modal.notification('Saved!').then(()=> {
+                    if (key == 'new'){
+                        window.location.href = '/account/posts/'+data._key
+                    }
+                })
+
+                
+            }).catch((e)=>{
+                methods.error(e)
+            })
+        }
+
+    }
+
+</script>

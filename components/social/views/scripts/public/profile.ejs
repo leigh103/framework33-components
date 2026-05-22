@@ -38,6 +38,71 @@
 
             }
 
+            methods.getFeed = async () => {
+                let feed = await http.post('/api/social_posts/get-posts',{_parent: '<%- record._id %>'})
+                for (var post of feed){
+
+                    if (post.gallery && post.gallery.length > 0){
+
+                        post._gallery = '<div class="gallery">'
+
+                        for (var img of post.gallery){
+                            post._gallery += `<img src="${img.small}">`
+                        }
+
+                        post._gallery += '</div>'
+
+                    }
+                    
+                }
+
+                scope.feed = feed
+            }
+
+            methods.follow = async () => {
+                http.post('/api/social_users/follow',{_id: '<%- record._id %>'}).then((data)=>{
+
+                    let follow = document.querySelector('#follow'),
+                        unfollow = document.querySelector('#unfollow')
+
+                    if (follow){
+                        follow.classList.toggle('bg-primary')
+                        follow.classList.toggle('outline-primary')
+                        if (follow.innerHTML == 'Unfollow'){
+                            follow.innerHTML = 'Follow'
+                        } else {
+                            follow.innerHTML = 'Unfollow'
+                        }
+                    }
+
+                    if (unfollow){
+                        unfollow.classList.toggle('outline-primary')
+                        unfollow.classList.toggle('bg-primary')
+                        if (unfollow.innerHTML == 'Unfollow'){
+                            unfollow.innerHTML = 'Follow'
+                        } else {
+                            unfollow.innerHTML = 'Unfollow'
+                        }
+                    }
+                    
+                    methods.notify()
+
+                }).catch((e)=>{
+                    methods.error(e)
+                })
+            }
+
+            methods.subscribe = async () => {
+                http.post('/api/social_users/subscribe',{_id: '<%- record._id %>'}).then((data)=>{
+                    methods.notify()
+                }).catch((e)=>{
+                    methods.error(e)
+                })
+            }
+
+            scope.feed = []
+            methods.getFeed()
+
         }
 
     </script>

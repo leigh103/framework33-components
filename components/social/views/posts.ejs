@@ -1,0 +1,41 @@
+
+    
+    <section class="page">
+        <div class="contain">
+            <h1>Posts</h1>
+            <div class="grid col-9 gap-1">
+
+                <div class="colspan-2 colspan-m-3 colspan-s-9">
+               
+                        <%- include('partials/account_menu.ejs') %>
+
+                </div>
+
+                <div class="colspan-7 colspan-m-6 colspan-s-9 feed">
+
+                    <div class="text-right mb-2">
+                        <a href="/account/posts/add" class="btn bg-primary"><i class="bx bx-plus"></i> New Post</a>
+                    </div>
+
+                    <table>
+                        <tr><th>Subject</th><th style="width: 10rem; text-align:right">Created</th></tr>
+                        <tr app-for="post in posts">
+                            <td app-click="editPost(post._key)" app-bind="post.subject"></td>
+                            <td style="width: 10rem; text-align:right" app-bind="parseDate(post._created, 'Do MMM YYYY h:mma')"></td>
+                        </tr>
+                    </table>
+                    
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+
+
+
+    
+
+
+
+

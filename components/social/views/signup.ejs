@@ -2,32 +2,56 @@
 
     <section class="page pb-3">
         <div class="contain">
-            <h1>Sign Up</h1>
 
-            <div id="username" class="input-text">
-                <label>Username</label>
-                <input type="text" app-model="record.username">
+            <div class="feed" style="max-width: 50rem; margin: auto">
+                <h1>Sign Up</h1>
+
+                <div id="username" class="input-text">
+                    <label>Choose a username</label>
+                    <input type="text" app-model="record.username">
+                </div>
+
+                <div id="email" class="input-text">
+                    <label>Email</label>
+                    <input type="text" app-model="record.email">
+                </div>
+
+                <div id="gender" class="input-select">
+                    <label>Gender</label>
+                    <select app-model="record.gender">
+                        <option value="" selected>Select gender...</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+                <div id="dob" class="input-select">
+                    <label>Date of birth</label>
+                    <input type="date" app-model="record._dob">
+                </div>
+
+                <div id="account_type" class="input-select">
+                    <label>Account Type</label>
+                    <select app-model="record.account_type">
+                        <option value="" selected>Select profile type...</option>
+                        <option value="provider">Provider</option>
+                        <option value="customer">Customer</option>
+                    </select>
+                </div>
+
+                <div id="password" class="input-text">
+                    <label>Password</label>
+                    <input type="password" app-model="record.password">
+                </div>
+
+                <div id="password_confirmation" class="input-text">
+                    <label>Confirm Password</label>
+                    <input type="password" app-model="record.password_confirmation">
+                </div>
+                <input type="hidden" id="fp">
+
+                <button class="btn bg-primary" app-click="signUp()">Save</button>
+
             </div>
-
-            <div id="email" class="input-text">
-                <label>email</label>
-                <input type="text" app-model="record.email">
-            </div>
-
-
-            <div id="password" class="input-text">
-                <label>Password</label>
-                <input type="password" app-model="record.password">
-            </div>
-
-            <div id="password_confirmation" class="input-text">
-                <label>Confirm Password</label>
-                <input type="password" app-model="record.password_confirmation">
-            </div>
-            <input type="hidden" id="fp">
-
-            <button class="btn bg-primary" app-click="signUp()">Save</button>
-
         </div>
 
 
