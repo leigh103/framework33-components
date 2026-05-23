@@ -1,0 +1,210 @@
+<script src="/js/framework-33/v3.0/framework33.js?v=3"></script>
+
+<script>
+
+extend.call = function() {
+
+    const roomId = '<%- roomId %>'
+    let localStream = null
+    let myWsId = null
+    const peers = {}     // peerId -> { pc }
+    const iceBuffer = {} // peerId -> [candidates] buffered before remote desc is set
+
+    socketConnect("<%- view.websocket.url %>")
+
+    // Augment the framework's onmessage so WebRTC signals are handled alongside normal WS events
+    const _origOnMessage = window.ws_server.onmessage
+    window.ws_server.onmessage = (msg) => {
+        _origOnMessage?.(msg)
+        let data
+        try { data = JSON.parse(msg.data) } catch(e) { return }
+        handleSignal(data)
+    }
+
+    window.ws_server.onopen = () => startCall()
+    if (window.ws_server.readyState === 1) startCall()
+
+    async function startCall() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+            document.querySelector('#local-video').srcObject = localStream
+        } catch(e) {
+            methods.error('Camera or microphone access was denied')
+            return
+        }
+        window.ws_server.send(JSON.stringify({ type: 'webrtc_join', room: roomId }))
+    }
+
+    function createPeerConnection(peerId) {
+        const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] })
+
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream))
+
+        pc.onicecandidate = ({ candidate }) => {
+            if (candidate) {
+                window.ws_server.send(JSON.stringify({ type: 'webrtc_ice_candidate', to: peerId, candidate }))
+            }
+        }
+
+        pc.ontrack = ({ streams }) => addRemoteVideo(peerId, streams[0])
+
+        peers[peerId] = { pc }
+        return pc
+    }
+
+    async function handleSignal(data) {
+        switch (data.type) {
+
+            case 'system':
+                if (data.ws_id) myWsId = data.ws_id
+                break
+
+            case 'webrtc_room_info':
+                myWsId = myWsId || data.your_ws_id
+                // existing peers will send us offers — nothing to initiate here
+                break
+
+            case 'webrtc_peer_joined': {
+                const peerId = data.ws_id
+                if (peerId === myWsId || peers[peerId]) return
+                // We (existing peer) initiate the offer to the new arrival
+                const pc = createPeerConnection(peerId)
+                const offer = await pc.createOffer()
+                await pc.setLocalDescription(offer)
+                window.ws_server.send(JSON.stringify({ type: 'webrtc_offer', to: peerId, sdp: pc.localDescription }))
+                break
+            }
+
+            case 'webrtc_offer': {
+                const peerId = data.from
+                if (peers[peerId]) return
+                const pc = createPeerConnection(peerId)
+                await pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+                await flushIceCandidates(peerId)
+                const answer = await pc.createAnswer()
+                await pc.setLocalDescription(answer)
+                window.ws_server.send(JSON.stringify({ type: 'webrtc_answer', to: peerId, sdp: pc.localDescription }))
+                break
+            }
+
+            case 'webrtc_answer': {
+                const pc = peers[data.from]?.pc
+                if (!pc) return
+                await pc.setRemoteDescription(new RTCSessionDescription(data.sdp))
+                await flushIceCandidates(data.from)
+                break
+            }
+
+            case 'webrtc_ice_candidate': {
+                const { from, candidate } = data
+                if (peers[from]?.pc?.remoteDescription) {
+                    await peers[from].pc.addIceCandidate(new RTCIceCandidate(candidate))
+                } else {
+                    iceBuffer[from] = iceBuffer[from] || []
+                    iceBuffer[from].push(candidate)
+                }
+                break
+            }
+
+            case 'webrtc_peer_left': {
+                const peerId = data.ws_id
+                peers[peerId]?.pc.close()
+                delete peers[peerId]
+                document.querySelector('#peer-' + safePeerId(peerId))?.remove()
+                break
+            }
+
+            case 'webrtc_chat': {
+                scope.chat.push({
+                    username: data.username,
+                    content: data.content,
+                    from: data.from,
+                    isMine: data.from === myWsId
+                })
+                const box = document.querySelector('#chat-messages')
+                if (box) box.scrollTop = box.scrollHeight
+                break
+            }
+        }
+    }
+
+    async function flushIceCandidates(peerId) {
+        const buffered = iceBuffer[peerId]
+        if (!buffered) return
+        delete iceBuffer[peerId]
+        for (const c of buffered) {
+            await peers[peerId]?.pc.addIceCandidate(new RTCIceCandidate(c))
+        }
+    }
+
+    function addRemoteVideo(peerId, stream) {
+        const id = 'peer-' + safePeerId(peerId)
+        const existing = document.querySelector('#' + id)
+        if (existing) { existing.srcObject = stream; return }
+        const video = document.createElement('video')
+        video.id = id
+        video.srcObject = stream
+        video.autoplay = true
+        video.playsinline = true
+        document.querySelector('#remote-videos').appendChild(video)
+    }
+
+    function safePeerId(id) {
+        return id.replace(/[^a-z0-9]/gi, '')
+    }
+
+    methods.toggleMute = () => {
+        localStream?.getAudioTracks().forEach(t => { t.enabled = !t.enabled })
+        scope.muted = !scope.muted
+    }
+
+    methods.toggleCamera = () => {
+        localStream?.getVideoTracks().forEach(t => { t.enabled = !t.enabled })
+        scope.cameraOff = !scope.cameraOff
+    }
+
+    methods.sendChat = () => {
+        const content = scope.chatMessage?.trim()
+        if (!content) return
+        window.ws_server.send(JSON.stringify({ type: 'webrtc_chat', room: roomId, content }))
+        scope.chatMessage = ''
+    }
+
+    methods.toggleChat = () => {
+        scope.chatOpen = !scope.chatOpen
+        if (scope.chatOpen) {
+            setTimeout(() => {
+                const box = document.querySelector('#chat-messages')
+                if (box) box.scrollTop = box.scrollHeight
+            }, 50)
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && document.activeElement?.id === 'chat-input') {
+            methods.sendChat()
+        }
+    })
+
+    methods.copyLink = () => {
+        navigator.clipboard.writeText(window.location.href)
+        methods.notify('Link copied!')
+    }
+
+    methods.leaveCall = () => {
+        window.ws_server.send(JSON.stringify({ type: 'webrtc_leave', room: roomId }))
+        localStream?.getTracks().forEach(t => t.stop())
+        Object.values(peers).forEach(({ pc }) => pc.close())
+        window.location.href = '/'
+    }
+
+    scope.muted = false
+    scope.cameraOff = false
+    scope.chatOpen = false
+    scope.chat = []
+    scope.chatMessage = ''
+    scope.roomId = roomId
+
+}
+
+</script>

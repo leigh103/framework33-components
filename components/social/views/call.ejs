@@ -1,0 +1,69 @@
+
+
+<section class="page call">
+
+    <div class="call-header flex items-center justify-between px-1 py-05">
+        <div class="flex items-center gap-05">
+            <span class="text-muted text-sm">Room:</span>
+            <code app-bind="roomId" class="text-white"></code>
+        </div>
+        <div class="flex gap-05">
+            <button class="btn sm outline-primary" app-click="copyLink()">
+                <i class="bx bx-link"></i> Copy Link
+            </button>
+            <button class="btn sm bg-error" app-click="leaveCall()">
+                <i class="bx bx-phone-off"></i> Leave
+            </button>
+        </div>
+    </div>
+
+    <div class="call-main">
+
+        <div class="videos-container">
+            <div id="remote-videos" class="remote-videos"></div>
+            <div class="local-video-wrapper">
+                <video id="local-video" autoplay muted playsinline></video>
+            </div>
+        </div>
+
+        <div class="chat-panel" app-show="chatOpen">
+            <div class="chat-messages" id="chat-messages">
+                <div app-for="msg in chat"
+                     class="chat-msg"
+                     app-class="{'mine': msg.isMine, 'theirs': !msg.isMine}">
+                    <div class="chat-name" app-bind="msg.username"></div>
+                    <div app-bind="msg.content"></div>
+                </div>
+            </div>
+            <div class="chat-input-row">
+                <input type="text"
+                       app-model="chatMessage"
+                       placeholder="Message..."
+                       id="chat-input">
+                <button class="btn sm bg-primary" app-click="sendChat()">
+                    <i class="bx bx-send"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="call-controls flex justify-center items-center gap-1 py-1">
+        <button class="btn round"
+                app-click="toggleMute()"
+                app-class="{'bg-error': muted, 'bg-dark': !muted}">
+            <i class="bx" app-class="{'bx-microphone-off': muted, 'bx-microphone': !muted}"></i>
+        </button>
+        <button class="btn round"
+                app-click="toggleCamera()"
+                app-class="{'bg-error': cameraOff, 'bg-dark': !cameraOff}">
+            <i class="bx" app-class="{'bx-video-off': cameraOff, 'bx-video': !cameraOff}"></i>
+        </button>
+        <button class="btn round"
+                app-click="toggleChat()"
+                app-class="{'bg-primary': chatOpen, 'bg-dark': !chatOpen}">
+            <i class="bx bx-chat"></i>
+        </button>
+    </div>
+
+</section>

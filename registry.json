@@ -15,6 +15,13 @@
       "category": "content"
     },
     {
+      "name": "Social",
+      "path": "components/social",
+      "description": "Social component",
+      "version": "1.0.0",
+      "category": "content"
+    },
+    {
       "name": "Invoices",
       "path": "components/invoices",
       "description": "invoices component",

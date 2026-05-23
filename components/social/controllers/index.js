@@ -335,6 +335,40 @@ import WebPageLayouts from "../../../core/models/WebPageLayouts.js"
 
     })
 
+    Routes.get('call', async (req, res) => {
+
+        if (!req.session?.user?._id){
+            return res.redirect('/login')
+        }
+
+        const roomId = Math.random().toString(36).slice(2, 10)
+        res.redirect('/call/' + roomId)
+
+    })
+
+    Routes.get('call', ':roomId', async (req, res) => {
+
+        // if (!req.session?.user?._id){
+        //     return res.redirect('/login')
+        // }
+
+        let data = {
+            user: res.locals.user,
+            roomId: req.params.roomId
+        }
+
+        let layout_data = {
+            view: '/components/social/views',
+            page: 'call',
+            scripts: 'scripts/public/call',
+            layout: 'social'
+        }
+
+        let html = await renderPage(layout_data, data)
+        res.send(html)
+
+    })
+
     const init = async () => {
 
         let existing_layout = await DB.read('web_page_layouts').where(['name == social']).first()
