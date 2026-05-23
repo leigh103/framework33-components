@@ -52,7 +52,7 @@ class SocialUsers extends Users {
 
         let upload_permission = {
             "model":"Files",
-            "method":"save",
+            "method":"*",
             "ownershipFilter":true,
             "name":"SocialUsers upload permisions",
             "groups":["SocialUsers"]
