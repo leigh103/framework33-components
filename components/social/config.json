@@ -9,7 +9,8 @@
                 "location": "dashboard",
                 "name": "Social",
                 "slug": "social_users/all",
-                "icon": "group",
+                "protected_guards":["Administrators"],
+                "icon": "bx-group",
                 "weight": 1
             },
             {
