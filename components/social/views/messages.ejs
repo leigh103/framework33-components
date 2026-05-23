@@ -3,7 +3,7 @@
         <div class="contain relative h-100">
 
             <h1>Messages</h1>
-  
+            <button class="round mr-05 flex-none btn bg-white hidden-d" app-click="thread = []"><i class="bx bx-chevron-left"></i></button>
             <% let field_data = {} %>
 
             <div class="grid col-9 gap-1 h-100">
@@ -81,9 +81,6 @@
 
                     <div class="new flex pb-1" app-show="view.thread_id">
 
-                        
-                        
-                        <!-- <button class="round mr-05 flex-none btn bg-white hidden-d" app-click="thread = []"><i class="bx bx-chevron-left"></i></button> -->
                         <file-browser data-field="view.send_message.attachments" data-type="image" data-field-type="array" data-preview="#attachments" class="mr-05"></file-browser>
                         <input type="text" class="bg-white" app-model="view.send_message.content" app-attr="{'placeholder':getPlaceholder(record)}">
 
